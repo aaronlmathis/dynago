@@ -112,11 +112,4 @@ func (s *DNSUpdateService) Start() error {
 	}
 }
 
-// Stop stops the DNS update service and performs any necessary cleanup.
-//
-// Returns an error if cleanup fails (currently always returns nil).
-func (s *DNSUpdateService) Stop() error {
-	// Clean up resources, close connections, etc.
-	// This is a placeholder for actual cleanup logic.
-	return nil
-}
+
