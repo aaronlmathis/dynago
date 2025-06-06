@@ -1,0 +1,15 @@
+[Unit]
+Description=Dynago Dynamic DNS Updater
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/dynago -config=/etc/dynago/dynago.yml
+Restart=on-failure
+User=nobody
+Group=nogroup
+WorkingDirectory=/usr/local/bin
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target

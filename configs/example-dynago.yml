@@ -1,0 +1,23 @@
+interval: 5m  # How often to check for IP changes
+
+ip_source: "https://api.ipify.org"  # External service to determine public IP
+
+# Log level: debug, info, warn, error
+log_level: "info"
+
+providers:
+  cloudflare:
+    enabled: true
+    api_token: "your-cloudflare-api-token"
+    zone_id: "example-zone-id"
+    record_name: "home.example.com"
+    record_type: "A"  # Or AAAA for IPv6
+
+  route53:
+    enabled: false
+    access_key_id: "AWS_ACCESS_KEY_ID"
+    secret_access_key: "AWS_SECRET_ACCESS_KEY"
+    hosted_zone_id: "Z1D633PJN98FT9"
+    record_name: "home.example.com"
+    record_type: "A"
+    region: "us-east-1"
