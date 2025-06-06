@@ -3,7 +3,7 @@
 
 # dynago
 
-**dynago** is a cross-platform, resource-light dynamic DNS updater written in Go. It automatically updates DNS records with your current public IP address, ensuring your domain always points to your home, server, or cloud instance—even when your IP changes.
+**dynago** is a cross-platform, resource-light dynamic DNS updater written in Go. It automatically updates DNS records with your current public IP address, ensuring your domain always points to your home, server, or cloud instance, even when your IP changes.
 
 ## Features
 
