@@ -70,6 +70,12 @@ func run() error {
 //
 // It parses command-line flags, then calls run(). If an error occurs, it prints the error and exits with status 1.
 func main() {
+	versionFlag := flag.Bool("version", false, "print version information and exit")
+	if *versionFlag {
+		fmt.Printf("dynago %s (commit %s, built %s)\n", Version, GitCommit, BuildTime)
+		os.Exit(0)
+	}
+
 	flag.StringVar(&ConfigPath, "config", "configs/dynago.yml", "Path to the configuration file")
 	flag.StringVar(&LogFile, "log", "", "Path to the log file (optional, defaults to stdout)")
 	flag.Parse()

@@ -4,13 +4,21 @@ CONFIG_SRC=configs/dynago.yml
 CONFIG_DST=/etc/dynago/dynago.yml
 SYSTEMD_UNIT=/etc/systemd/system/dynago.service
 
+VERSION := 0.1.0
+BUILD_TIME := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
+
+LDFLAGS := -X 'main.Version=$(VERSION)' \
+           -X 'main.BuildTime=$(BUILD_TIME)' \
+           -X 'main.GitCommit=$(GIT_COMMIT)'
+
 .PHONY: all build install clean fmt test
 
 all: build
 
 build:
 	mkdir -p bin
-	go build -o $(BINARY) ./cmd/dynago
+	go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/dynago
 
 fmt:
 	go fmt ./...

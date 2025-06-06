@@ -63,7 +63,7 @@ func (s *DNSUpdateService) Start() error {
 	if s.cfg == nil {
 		return nil // No configuration provided, nothing to do.
 	}
-	logger.Info("DNSUpdateService starting with config: %+v", s.cfg)
+	logger.Info("DNSUpdateService starting... ")
 
 	reg, err := provider.NewDNSProviderRegistry(s.cfg)
 	if err != nil {

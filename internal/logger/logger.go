@@ -30,13 +30,8 @@ import (
 )
 
 var (
-	logger   zerolog.Logger // The global zerolog logger instance
-	logLevel zerolog.Level  // Track the configured log level
-)
-
-// Writers for log output.
-var (
-	appWriter io.Writer // Writer for application logs (file or discard)
+	logLevel  zerolog.Level // Track the configured log level
+	appWriter io.Writer     // Writer for application logs (file or discard)
 )
 
 // InitLogger initializes the logging system for the application.
@@ -83,10 +78,6 @@ func InitLogger(appLogFile, level string) error {
 	}
 	zerolog.SetGlobalLevel(logLevel)
 
-	// Set up pretty console output and multi-writer
-	console := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}
-	multiWriter := io.MultiWriter(appWriter, console)
-	logger = zerolog.New(multiWriter).With().Timestamp().Caller().Logger()
 	return nil
 }
 
@@ -96,7 +87,10 @@ func InitLogger(appLogFile, level string) error {
 //	args:   Arguments for the format string.
 func Info(format string, args ...any) {
 	if logLevel <= zerolog.InfoLevel {
-		logger.Info().Msgf(format, args...)
+		console := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}
+		mw := io.MultiWriter(appWriter, console)
+		l := zerolog.New(mw).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
+		l.Info().Msgf(format, args...)
 	}
 }
 
@@ -106,7 +100,10 @@ func Info(format string, args ...any) {
 //	args:   Arguments for the format string.
 func Warn(format string, args ...any) {
 	if logLevel <= zerolog.WarnLevel {
-		logger.Warn().Msgf(format, args...)
+		console := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}
+		mw := io.MultiWriter(appWriter, console)
+		l := zerolog.New(mw).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
+		l.Warn().Msgf(format, args...)
 	}
 }
 
@@ -116,7 +113,10 @@ func Warn(format string, args ...any) {
 //	args:   Arguments for the format string.
 func Error(format string, args ...any) {
 	if logLevel <= zerolog.ErrorLevel {
-		logger.Error().Msgf(format, args...)
+		console := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}
+		mw := io.MultiWriter(appWriter, console)
+		l := zerolog.New(mw).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
+		l.Error().Msgf(format, args...)
 	}
 }
 
@@ -126,6 +126,9 @@ func Error(format string, args ...any) {
 //	args:   Arguments for the format string.
 func Debug(format string, args ...any) {
 	if logLevel <= zerolog.DebugLevel {
-		logger.Debug().Msgf(format, args...)
+		console := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}
+		mw := io.MultiWriter(appWriter, console)
+		l := zerolog.New(mw).With().Timestamp().CallerWithSkipFrameCount(3).Logger()
+		l.Debug().Msgf(format, args...)
 	}
 }
