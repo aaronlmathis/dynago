@@ -4,7 +4,7 @@ CONFIG_SRC=configs/dynago.yml
 CONFIG_DST=/etc/dynago/dynago.yml
 SYSTEMD_UNIT=/etc/systemd/system/dynago.service
 
-VERSION := 0.1.0
+VERSION := 0.1.1
 BUILD_TIME := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
 

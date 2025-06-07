@@ -37,7 +37,6 @@ func captureOutput(f func()) string {
 	appWriter = &buf
 	logLevel = zerolog.DebugLevel
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	logger = zerolog.New(appWriter).With().Timestamp().Caller().Logger()
 	f()
 	return buf.String()
 }
@@ -96,7 +95,6 @@ func TestDebugLog_Disabled(t *testing.T) {
 	appWriter = &buf
 	logLevel = zerolog.InfoLevel
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	logger = zerolog.New(appWriter).With().Timestamp().Caller().Logger()
 	Debug("should not appear")
 	if buf.Len() != 0 {
 		t.Errorf("Debug log written when disabled")

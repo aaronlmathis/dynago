@@ -29,17 +29,19 @@ import (
 
 	"github.com/aaronlmathis/dynago/internal/config"
 	"github.com/aaronlmathis/dynago/internal/logger"
-	"github.com/aaronlmathis/dynago/internal/provider"
 	"github.com/aaronlmathis/dynago/internal/utils"
+	providers "github.com/aaronlmathis/dynago/providers"
+	cfprovider "github.com/aaronlmathis/dynago/providers/cloudflare"
+	r53provider "github.com/aaronlmathis/dynago/providers/route53"
 )
 
 // DNSUpdateService manages the periodic update of DNS records for the host's current public IP.
 //
 // It loads configuration, initializes providers, and runs a loop to check and update DNS records as needed.
 type DNSUpdateService struct {
-	cfg      *config.Config       // Application configuration
-	ctx      context.Context      // Service context for cancellation
-	provider provider.DNSProvider // (Unused, reserved for future single-provider mode)
+	cfg      *config.Config        // Application configuration
+	ctx      context.Context       // Service context for cancellation
+	provider providers.DNSProvider // (Unused, reserved for future single-provider mode)
 }
 
 // NewDNSUpdateService creates a new DNSUpdateService with the given context and configuration.
@@ -65,7 +67,20 @@ func (s *DNSUpdateService) Start() error {
 	}
 	logger.Info("DNSUpdateService starting... ")
 
-	reg, err := provider.NewDNSProviderRegistry(s.cfg)
+	var providersList []providers.DNSProvider
+	if raw, ok := s.cfg.Providers["cloudflare"]; ok {
+		cf, err := cfprovider.New(raw)
+		if err == nil && cf.Cfg.Enabled {
+			providersList = append(providersList, cf)
+		}
+	}
+	if raw, ok := s.cfg.Providers["route53"]; ok {
+		r53, err := r53provider.New(raw)
+		if err == nil && r53.Cfg.Enabled {
+			providersList = append(providersList, r53)
+		}
+	}
+	reg, err := providers.NewDNSProviderRegistry(s.cfg, providersList...)
 	if err != nil {
 		logger.Error("No DNS providers enabled: %v", err)
 		return fmt.Errorf("failed to create DNS provider registry: %w", err)

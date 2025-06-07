@@ -145,6 +145,44 @@ providers:
 - Set `enabled: true` for the provider(s) you want to use.
 - For Cloudflare, set `proxied: true` to enable the orange cloud (proxy).
 
+## Provider Configuration
+
+Each provider’s configuration is defined by that provider’s Go package. The main config file’s `providers:` section is a map, and each provider receives its own sub-map at runtime.
+
+For example, the Cloudflare provider expects:
+
+```yaml
+providers:
+  cloudflare:
+    enabled: true
+    api_token: "your-cloudflare-api-token"
+    zone_id: "your-zone-id"
+    record_name: "home.example.com"
+    record_type: "A"
+    proxied: true
+```
+
+The Route53 provider expects:
+
+```yaml
+providers:
+  route53:
+    enabled: false
+    access_key_id: "AWS_ACCESS_KEY_ID"
+    secret_access_key: "AWS_SECRET_ACCESS_KEY"
+    hosted_zone_id: "Z1D633PJN98FT9"
+    record_name: "home.example.com"
+    record_type: "A"
+    region: "us-east-1"
+```
+
+**To add a new provider:**
+- Implement the `DNSProvider` interface in your own package.
+- Define your own config struct and document the expected YAML.
+- Unmarshal the config using the provided `config.ConfigFromMap` helper.
+
+---
+
 ## Advanced
 
 - **Run manually:**

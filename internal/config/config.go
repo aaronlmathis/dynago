@@ -31,64 +31,12 @@ import (
 
 // Config represents the root configuration for dynago loaded from YAML.
 //
-// Fields:
-//   - Interval: How often to check for IP changes (parsed as time.Duration).
-//   - IPSource: URL to determine the public IP address.
-//   - LogLevel: Logging level (debug, info, warn, error).
-//   - Providers: DNS provider configurations.
+// Providers is a map of provider name to arbitrary config (for extensibility).
 type Config struct {
-	Interval  time.Duration   `yaml:"interval"`
-	IPSource  string          `yaml:"ip_source"`
-	LogLevel  string          `yaml:"log_level"`
-	Providers ProvidersConfig `yaml:"providers"`
-}
-
-// ProvidersConfig holds configuration for all supported DNS providers.
-//
-// Fields:
-//   - Cloudflare: Cloudflare provider configuration.
-//   - Route53: AWS Route53 provider configuration.
-type ProvidersConfig struct {
-	Cloudflare CloudflareConfig `yaml:"cloudflare"`
-	Route53    Route53Config    `yaml:"route53"`
-}
-
-// CloudflareConfig holds Cloudflare-specific configuration.
-//
-// Fields:
-//   - Enabled: Whether Cloudflare updates are enabled.
-//   - APIToken: Cloudflare API token.
-//   - ZoneID: Cloudflare zone ID.
-//   - RecordName: DNS record name to update.
-//   - RecordType: DNS record type (A or AAAA).
-//   - Proxied: Whether the record should be proxied (orange cloud in Cloudflare UI).
-type CloudflareConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	APIToken   string `yaml:"api_token"`
-	ZoneID     string `yaml:"zone_id"`
-	RecordName string `yaml:"record_name"`
-	RecordType string `yaml:"record_type"`
-	Proxied    bool   `yaml:"proxied"`
-}
-
-// Route53Config holds AWS Route53-specific configuration.
-//
-// Fields:
-//   - Enabled: Whether Route53 updates are enabled.
-//   - AccessKeyID: AWS access key ID.
-//   - SecretAccessKey: AWS secret access key.
-//   - HostedZoneID: AWS hosted zone ID.
-//   - RecordName: DNS record name to update.
-//   - RecordType: DNS record type (A or AAAA).
-//   - Region: AWS region.
-type Route53Config struct {
-	Enabled         bool   `yaml:"enabled"`
-	AccessKeyID     string `yaml:"access_key_id"`
-	SecretAccessKey string `yaml:"secret_access_key"`
-	HostedZoneID    string `yaml:"hosted_zone_id"`
-	RecordName      string `yaml:"record_name"`
-	RecordType      string `yaml:"record_type"`
-	Region          string `yaml:"region"`
+	Interval  time.Duration  `yaml:"interval"`
+	IPSource  string         `yaml:"ip_source"`
+	LogLevel  string         `yaml:"log_level"`
+	Providers map[string]any `yaml:"providers"`
 }
 
 // LoadConfig loads the configuration from the given YAML file path.
@@ -96,22 +44,17 @@ type Route53Config struct {
 // It parses the YAML file, converts the interval string to time.Duration,
 // and returns a Config struct or an error if parsing fails.
 //
-// Example usage:
-//
-//	cfg, err := config.LoadConfig("configs/dynago.yml")
-//	if err != nil {
-//	    log.Fatal(err)
-//	}
+// Provider configs are left as generic maps for each provider.
 func LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file %s: %w", path, err)
 	}
 	var raw struct {
-		Interval  string          `yaml:"interval"`
-		IPSource  string          `yaml:"ip_source"`
-		LogLevel  string          `yaml:"log_level"`
-		Providers ProvidersConfig `yaml:"providers"`
+		Interval  string         `yaml:"interval"`
+		IPSource  string         `yaml:"ip_source"`
+		LogLevel  string         `yaml:"log_level"`
+		Providers map[string]any `yaml:"providers"`
 	}
 	if err := yaml.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("failed to parse config file %s: %w", path, err)
@@ -127,4 +70,22 @@ func LoadConfig(path string) (*Config, error) {
 		Providers: raw.Providers,
 	}
 	return cfg, nil
+}
+
+// ConfigFromMap parses a provider config from a generic map into a strongly-typed struct.
+//
+// This function is useful for converting provider-specific configuration
+// from the generic map structure used in the YAML file to the
+// strongly-typed struct expected by each provider's implementation.
+//
+// Usage:
+//
+//	var cfg CloudflareConfig
+//	err := config.ConfigFromMap(rawMap, &cfg)
+func ConfigFromMap(m any, out any) error {
+	data, err := yaml.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return yaml.Unmarshal(data, out)
 }

@@ -74,19 +74,39 @@ func TestLoadConfig(t *testing.T) {
 	if cfg.LogLevel != "info" {
 		t.Errorf("unexpected log_level: %s", cfg.LogLevel)
 	}
-	if !cfg.Providers.Cloudflare.Enabled {
+
+	// Cloudflare provider assertions
+	cfRaw, ok := cfg.Providers["cloudflare"]
+	if !ok {
+		t.Fatalf("cloudflare provider config missing")
+	}
+	cfCfg, ok := cfRaw.(map[string]any)
+	if !ok {
+		t.Fatalf("cloudflare config is not a map[string]any")
+	}
+	if enabled, _ := cfCfg["enabled"].(bool); !enabled {
 		t.Errorf("cloudflare.enabled should be true")
 	}
-	if cfg.Providers.Cloudflare.APIToken != "cf-token" {
-		t.Errorf("unexpected cloudflare.api_token: %s", cfg.Providers.Cloudflare.APIToken)
+	if token, _ := cfCfg["api_token"].(string); token != "cf-token" {
+		t.Errorf("unexpected cloudflare.api_token: %s", token)
 	}
-	if cfg.Providers.Cloudflare.Proxied != true {
+	if proxied, _ := cfCfg["proxied"].(bool); proxied != true {
 		t.Errorf("cloudflare.proxied should be true")
 	}
-	if cfg.Providers.Route53.Enabled {
+
+	// Route53 provider assertions
+	r53Raw, ok := cfg.Providers["route53"]
+	if !ok {
+		t.Fatalf("route53 provider config missing")
+	}
+	r53Cfg, ok := r53Raw.(map[string]any)
+	if !ok {
+		t.Fatalf("route53 config is not a map[string]any")
+	}
+	if enabled, _ := r53Cfg["enabled"].(bool); enabled {
 		t.Errorf("route53.enabled should be false")
 	}
-	if cfg.Providers.Route53.Region != "us-east-1" {
-		t.Errorf("unexpected route53.region: %s", cfg.Providers.Route53.Region)
+	if region, _ := r53Cfg["region"].(string); region != "us-east-1" {
+		t.Errorf("unexpected route53.region: %s", region)
 	}
 }
