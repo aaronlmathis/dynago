@@ -2,7 +2,6 @@ module github.com/aaronlmathis/dynago
 
 go 1.24.3
 
-replace github.com/aaronlmathis/dynago/providers => ./providers/
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
